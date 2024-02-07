@@ -9,6 +9,7 @@ export class TodosRoutes {
   
   
       router.get("/", todoController.getAll);
+      router.get("/:id", todoController.getById);
   
       return router;
     }
