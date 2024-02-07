@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 
 const todos = [
   { id: 1, text: "Buy milk", completedAt: new Date() },
-  { id: 1, text: "Buy bread", completedAt: null },
-  { id: 1, text: "Buy butter", completedAt: new Date() },
+  { id: 2, text: "Buy bread", completedAt: null },
+  { id: 3, text: "Buy butter", completedAt: new Date() },
 ];
 
 export class TodosController {
