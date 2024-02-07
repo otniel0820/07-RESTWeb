@@ -8,8 +8,10 @@ export class TodosRoutes {
       const todoController = new TodosController();
   
   
-      router.get("/", todoController.getAll);
-      router.get("/:id", todoController.getById);
+      router.get("/", todoController.getAllTodo);
+      router.get("/:id", todoController.getTodoById);
+      router.post("/", todoController.createTodo);
+      router.put("/:id", todoController.updateTodo);
   
       return router;
     }

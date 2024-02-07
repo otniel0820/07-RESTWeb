@@ -23,6 +23,9 @@ export class Server {
   async start() {
     //!Middlewares
 
+    this.app.use(express.json()); //Este middelware  permite que los datos enviados por el body sean interpretados como un formato raw
+    this.app.use(express.urlencoded({extended: true}));// Este middelware permite que los datos enviados sean interpretados como url-encode que es usado mucho en angular
+    
     //!public folder
 
     this.app.use(express.static(this.publicPath));
