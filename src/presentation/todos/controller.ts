@@ -1,10 +1,5 @@
 import { Request, Response } from "express";
-
-const todos = [
-  { id: 1, text: "Buy milk", completedAt: new Date() },
-  { id: 2, text: "Buy bread", completedAt: null },
-  { id: 3, text: "Buy butter", completedAt: new Date() },
-];
+import { prisma } from "../../data/postgresql";
 
 export class TodosController {
   //!Inyeccion de dependencias
@@ -12,69 +7,72 @@ export class TodosController {
   constructor() {}
 
   //Obtener todos los todos
-  public getAllTodo = (req: Request, res: Response) => {
-    return res.json(todos);
+  public getAllTodo = async (req: Request, res: Response) => {
+    const todos = await prisma.todo.findMany();
+    return res.status(200).json(todos);
   };
 
   //Obtener los todos por medio del id y haciendo manejo de errores de servidor
-  public getTodoById = (req: Request, res: Response) => {
+  public getTodoById = async (req: Request, res: Response) => {
     const id = +req.params.id;
 
     if (isNaN(id)) return res.status(400).send("Bad request");
 
-    const todo = todos.find((todo) => todo.id === id);
-    todo ? res.json(todo) : res.status(404).send("Not found");
+    const todo = await prisma.todo.findFirst({
+      where: { id: id }, // el where en este caso es la key que te permite buscar en la base de datos por id pasanole el id como value
+    });
+
+    todo
+      ? res.status(200).json(todo)
+      : res.status(404).json({ error: `Todo with id ${id} not found` });
   };
 
-  //Creacion de un nuevo Todo estableciendo el body con el que queremos que se cree el usuario puede mandar lo que quiera en el body pero en este caso el backend solo tomnara lo que necesita que en este caso es la logica que le hemos colocado dentro de createTodo
-  public createTodo = (req: Request, res: Response) => {
+  public createTodo = async (req: Request, res: Response) => {
     const { text } = req.body;
     if (!text) return res.status(400).send("Bad request");
 
-    const newTodo = {
-      id: todos.length + 1,
-      text: text,
-      completedAt: new Date(),
-    };
-    todos.push(newTodo);
-    res.json(newTodo);
+    const todo = await prisma.todo.create({ data: { text: text } });
+
+    res.json(todo);
   };
 
-  public updateTodo = (req: Request, res: Response) => {
+  public updateTodo = async (req: Request, res: Response) => {
     const id = +req.params.id;
     if (isNaN(id)) return res.status(400).send("Bad request");
 
-    const todo = todos.find((todo) => todo.id === id);
-    if (!todo)
-      return res.status(404).json({ error: `Todo with id ${id} not found` });
+    const todo = await prisma.todo.findFirst({
+      where: { id },
+    });
+    if (!todo) res.status(404).json({ error: `Todo with id ${id} not found` });
 
     const { text, completedAt } = req.body;
 
-    todo.text = text || todo.text;
+    const updateTodo = await prisma.todo.update({
+      where: { id },
+      data: { text, completedAt: (completedAt)? new Date(completedAt): null },
+    });
 
-    completedAt === "null"
-      ? (todo.completedAt = null)
-      : (todo.completedAt = new Date() || todo.completedAt);
-
-    res.json(todo);
+    res.json(updateTodo);
   };
 
-  public deleteTodo = (req: Request, res: Response) => {
-
+  public deleteTodo = async (req: Request, res: Response) => {
     const id = +req.params.id;
-    if (isNaN(id)) return res.status(400).send("Bad request");
 
-    const todo = todos.find((todo) => todo.id === id);
-    if (!todo)
-      return res.status(404).json({ error: `Todo with id ${id} not found` });
-
-    todos.splice(todos.indexOf(todo), 1);
-
-    res.json(todo);
-
-    return res.status(204).send("No Content");
+    const todo = await prisma.todo.findFirst({
+      where: { id },
+    });
     
+    if (!todo) res.status(404).json({ error: `Todo with id ${id} not found` });
 
+    try {
+      const deleted = await prisma.todo.delete({
+          where: { id },
+      });
+
+      res.json(deleted);
+  } catch (error) {
+      res.status(400).json({ error: `Todo with id ${id} not found` });
   }
 
+  };
 }
