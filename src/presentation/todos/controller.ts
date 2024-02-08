@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../data/postgresql";
+import { CreateTodoDTO } from '../../domain/dtos/todos/create-todo.dto';
 
 export class TodosController {
   //!Inyeccion de dependencias
@@ -28,10 +29,14 @@ export class TodosController {
   };
 
   public createTodo = async (req: Request, res: Response) => {
-    const { text } = req.body;
-    if (!text) return res.status(400).send("Bad request");
+    const [error, createTodoDto] = CreateTodoDTO.create(req.body)
 
-    const todo = await prisma.todo.create({ data: { text: text } });
+    if(error) return res.status(400).json({error})
+
+
+    const todo = await prisma.todo.create({
+       data: createTodoDto!
+      });
 
     res.json(todo);
   };
