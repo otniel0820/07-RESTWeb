@@ -1,0 +1,20 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model todo {
+  id          Int       @id @default(autoincrement())
+  text        String    @db.VarChar
+  completedAt DateTime? @db.Timestamp()
+}
+
+//Cuando se hace una modificacion en este archivo ya sea que se agregue un modelo nuevo o un schema se ejecutara el comando //!npx prisma migrate dev --name init
+//Para que prisma se encarguye de toda la migracion
