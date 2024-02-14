@@ -1,4 +1,5 @@
 import express, { Router } from "express";
+import compression from "compression";
 import path from "path";
 
 interface Options {
@@ -25,7 +26,7 @@ export class Server {
 
     this.app.use(express.json()); //Este middelware  permite que los datos enviados por el body sean interpretados como un formato raw
     this.app.use(express.urlencoded({extended: true}));// Este middelware permite que los datos enviados sean interpretados como url-encode que es usado mucho en angular
-    
+    this.app.use(compression()) // se usa para la compresion de nuestras request y response, es una buena practica recomendadad por express para mejorar la respuesta del servidor 
     //!public folder
 
     this.app.use(express.static(this.publicPath));
