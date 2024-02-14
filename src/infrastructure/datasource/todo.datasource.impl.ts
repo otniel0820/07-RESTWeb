@@ -3,7 +3,7 @@ import { CreateTodoDTO, TodoDatasource, TodoEntity, UpdateTodoDTO } from "../../
 
 
 
-export class TodoDatasourceimple implements TodoDatasource {
+export class TodoDatasourceImpl implements TodoDatasource {
     async create(createTodoDto: CreateTodoDTO): Promise<TodoEntity> {
         const todo = await prisma.todo.create({
             data: createTodoDto!
