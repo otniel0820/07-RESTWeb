@@ -3,6 +3,7 @@ import { CreateTodoDTO } from "../../domain/dtos/todos/create-todo.dto";
 import { UpdateTodoDTO } from "../../domain/dtos";
 import {
   CreateTodo,
+  CustomError,
   DeleteTodo,
   GetTodo,
   GetTodos,
@@ -19,7 +20,7 @@ export class TodosController {
     new GetTodos(this.todoRepository)
       .execute()
       .then((todos) => res.json(todos))
-      .catch((error) => res.status(400).json({ error }));
+      .catch((error: CustomError) => res.status(error.statusCode).json({ error: error.message }));
   };
 
   public getTodoById = (req: Request, res: Response) => {
